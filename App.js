@@ -38,9 +38,6 @@ const Switch = ({size, onPress, isActive}) => {
           <View style={{alignItems: 'center', justifyContent: 'center'}}>
               <MotiView
                   transition={transition}
-                  from={{
-                      backgroundColor: isActive ? _colors.active : _colors.inactive,
-                  }}
                   animate={{
                       backgroundColor: isActive ? _colors.active : _colors.inactive,
                   }}
