@@ -1,54 +1,109 @@
-import { AnimatePresence, View } from "moti";
-import { useReducer } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import {AnimatePresence, MotiView, View} from "moti";
+import {useMemo, useReducer, useState} from "react";
+import {Pressable, StyleSheet, Text} from "react-native";
+import {Easing} from "react-native-reanimated";
 
-function Shape({ bg }) {
+const _colors = {
+    active: '#2C2C2C',
+    inactive: '#DCDCDC'
+}
+
+const _colorsIndi = {
+    active: '#f56348',
+    inactive: '#2b8000'
+}
+
+const Switch = ({size, onPress, isActive}) => {
+
+  const trackWidth = useMemo(() => {
+    return size * 1.5;
+  }, [size]);
+
+  const trackHeight = useMemo(() => {
+    return size * 0.4;
+  }, [size]);
+
+  const knobSize = useMemo(() => {
+        return size * 0.6;
+        }, [size]);
+
+  const transition = {
+      type: 'timing',
+      duration: 300,
+      easing: Easing.inOut(Easing.ease)
+  }
+
   return (
-    <View
-      from={{
-        opacity: 0,
-        scale: 0.5,
-      }}
-      animate={{
-        opacity: 1,
-        scale: 1,
-      }}
-      exit={{
-        opacity: 0,
-        scale: 0.9,
-      }}
-      style={[styles.shape, { backgroundColor: bg }]}
-    />
-  );
+      <Pressable onPress={onPress}>
+          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <MotiView
+                  transition={transition}
+                  from={{
+                      backgroundColor: isActive ? _colors.active : _colors.inactive,
+                  }}
+                  animate={{
+                      backgroundColor: isActive ? _colors.active : _colors.inactive,
+                  }}
+                  style={{
+                      position: 'absolute',
+                      width: trackWidth,
+                      height: trackHeight,
+                      borderRadius: trackHeight / 2,
+                      backgroundColor: _colors.active
+                  }}
+              />
+              <MotiView
+                  transition={transition}
+                  animate={{
+                      translateX: isActive ? trackWidth / 4 : -trackWidth / 4,
+                  }}
+                  style={{
+                      width: size,
+                      height: size,
+                      borderRadius: size / 2,
+                      backgroundColor: '#fff',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                  }}
+              >
+                  <MotiView
+                      transition={transition}
+                      animate={{
+                          width: isActive ? 0 : knobSize,
+                          borderColor: isActive ? _colorsIndi.active: _colorsIndi.inactive
+                      }}
+                      style={{
+                          width: knobSize,
+                          height: knobSize,
+                          borderRadius: knobSize / 2,
+                          borderWidth: size * 0.1,
+                          borderColor: _colors.active
+                      }}
+                  />
+              </MotiView>
+          </View>
+      </Pressable>
+  )
+
 }
 
 export default function App() {
-  const [visible, toggle] = useReducer((s) => !s, true);
-
-  return (
-    <Pressable onPress={toggle} style={styles.container}>
-      <AnimatePresence exitBeforeEnter>
-        {visible && <Shape bg="hotpink" key="hotpink" />}
-        {!visible && <Shape bg="cyan" key="cyan" />}
-      </AnimatePresence>
-    </Pressable>
+    const [isActive, setIsActive] = useState(false);
+    return (
+    <View style={[styles.container, {backgroundColor: isActive ? 'tomato' : 'green'}]}>
+        <Switch
+            size={60}
+            onPress={() => {setIsActive((isActive) => !isActive)}}
+            isActive={isActive}
+        />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  shape: {
-    justifyContent: "center",
-    height: 250,
-    width: 250,
-    borderRadius: 25,
-    marginRight: 10,
-    backgroundColor: "white",
-  },
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    flexDirection: "row",
-    backgroundColor: "#9c1aff",
   },
 });
